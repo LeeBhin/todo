@@ -13,7 +13,7 @@
             <template v-slot:prepend>
               <v-checkbox
                 v-model="todo.completed"
-                @change="saveTodos"
+                @click.stop="toggleTodoStatus({ index, completed: !todo.completed })"
                 hide-details
               />
             </template>
@@ -33,40 +33,19 @@
 
 <script>
 import AddTodo from './AddTodo.vue'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'ToDoList',
   components: { AddTodo },
-  data() {
-    return {
-      todos: []
-    }
-  },
-  mounted() {
-    const savedTodos = localStorage.getItem('todos')
-    if (savedTodos) {
-      this.todos = JSON.parse(savedTodos)
-    }
+  computed: {
+    ...mapGetters(['todos'])
   },
   methods: {
-    addTodo(newTodo) {
-      this.todos.push({ text: newTodo, completed: false })
-      this.saveTodos()
-    },
-    removeTodo(index) {
-      this.todos.splice(index, 1)
-      this.saveTodos()
-    },
-    saveTodos() {
-      localStorage.setItem('todos', JSON.stringify(this.todos))
-    }
+    ...mapActions(['addTodo', 'removeTodo', 'toggleTodoStatus']),
+  },
+  created() {
+    this.$store.dispatch('loadTodos')
   }
 }
 </script>
-
-<style scoped>
-.completed .v-list-item__title {
-  text-decoration: line-through;
-  color: grey;
-}
-</style>
