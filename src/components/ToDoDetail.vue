@@ -22,6 +22,13 @@
         required: true
       }
     },
+    created() {
+        console.log('created')
+        console.log('created', this.id)
+    },
+    mounted() {
+        console.log('mounted')
+    },
     computed: {
       ...mapGetters(['todos']),
       todo() {
