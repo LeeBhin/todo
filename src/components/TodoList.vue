@@ -40,7 +40,6 @@ export default {
     async fetchTodos() {
       try {
         const response = await todoService.getTodos();
-        console.log(response);
         this.todos = response.data;
       } catch (error) {
         console.error('Error fetchTodos todo: ', error);
@@ -56,11 +55,9 @@ export default {
       }
     },
     async addTodo(todoTitle) {
-      console.log("add todo")
       try {
         const newTodo = { title: todoTitle, completed: false };
         const response = await todoService.createTodo(newTodo);
-        console.log(response)
         this.todos.push(response.data);
       } catch (error) {
         console.error('Error addTodo todo: ', error);

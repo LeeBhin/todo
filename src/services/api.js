@@ -7,4 +7,17 @@ const apiClient = axios.create({
     }
 });
 
+apiClient.interceptors.request.use((config) => {
+    if (!config.url.includes('/auth/login') && !config.url.includes('/auth/register')) {
+        const token = localStorage.getItem("token")
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`
+        }
+    }
+    return config
+}, (error) => {
+    console.error(error)
+    return Promise.reject(error)
+})
+
 export default apiClient;
