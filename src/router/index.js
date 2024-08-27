@@ -7,17 +7,27 @@ import Register from '@/components/Register.vue'
 import Login from '@/components/Login.vue'
 
 const routes = [
-  { path: '/', name: 'Home', component: ToDoList },
+  { path: '/', name: 'Home', component: ToDoList, meta: { requiresAuth: true } },
   { path: '/login', name: 'Login', component: Login },
   { path: '/register', name: 'Register', component: Register },
-  { path: '/post', name: 'PostList', component: PostList },
-  { path: '/todo/:id', name: 'ToDoDetail', component: ToDoDetail, props: true },
-  { path: '/post/:id', name: 'PostDetail', component: PostDetail, props: true },
+  { path: '/post', name: 'PostList', component: PostList, meta: { requiresAuth: true } },
+  { path: '/todo/:id', name: 'ToDoDetail', component: ToDoDetail, props: true, meta: { requiresAuth: true } },
+  { path: '/post/:id', name: 'PostDetail', component: PostDetail, props: true, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem('token')
+
+  if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
+    next('/login')
+  } else {
+    next()
+  }
 })
 
 export default router
