@@ -19,6 +19,9 @@
             </template>
           </v-list-item>
         </v-list>
+
+        <v-pagination v-model="currentPage" :length="totalPages" @input="fetchTodos" />
+
       </v-col>
     </v-row>
   </v-container>
@@ -31,16 +34,25 @@ import todoService from '@/services/todoService.js'
 export default {
   name: 'ToDoList',
   components: { AddTodo },
+  watch: {
+    currentPage() {
+      this.fetchTodos()
+    }
+  },
   data() {
     return {
-      todos: []
+      todos: [],
+      currentPage: 1,
+      totalPages: 1,
+      pageSize: 10,
     }
   },
   methods: {
     async fetchTodos() {
       try {
-        const response = await todoService.getTodos();
-        this.todos = response.data;
+        const response = await todoService.getTodos(this.currentPage - 1, this.pageSize);
+        this.todos = response.data.content;
+        this.totalPages = response.data.totalPages
       } catch (error) {
         console.error('Error fetchTodos todo: ', error);
       }
@@ -49,7 +61,7 @@ export default {
       try {
         const updateTodo = { ...todo, completed: !todo.completed }
         const response = await todoService.updateTodo(todo.id, updateTodo);
-        this.todos = this.todos.map(t => t.id === todo.id ? updateTodo : t);
+        this.fetchTodos()
       } catch (error) {
         console.error('Error toggleTodoStatus todo: ', error);
       }
@@ -58,7 +70,7 @@ export default {
       try {
         const newTodo = { title: todoTitle, completed: false };
         const response = await todoService.createTodo(newTodo);
-        this.todos.push(response.data);
+        this.fetchTodos()
       } catch (error) {
         console.error('Error addTodo todo: ', error);
       }
@@ -66,7 +78,7 @@ export default {
     async removeTodo(id) {
       try {
         await todoService.deleteTodo(id);
-        this.todos = this.todos.filter(todo => todo.id !== id)
+        this.fetchTodos()
       } catch (error) {
         console.error('Error removeTodo todo: ', error);
       }
